@@ -110,15 +110,29 @@ public class Trie {
     }
 
     /**
-     * Delete word from trie.
+     * Delete word from trie. Returns true if word is deleted, else returns false.
      */
-    public void delete(String word) {
+    private boolean wordDeleted;
+    public boolean delete(String word) {
+        wordDeleted = false;
         delete(root, word, 0);
+        if(wordDeleted){
+            wordDeleted = false;//Set for next word deletion.
+            return true;
+        }
+        return wordDeleted;
     }
 
     /**
-     * Returns true if parent should delete the mapping
-     */
+     * Returns true if parent should delete the mapping.
+     * Case 1. End of word is reached and the endOfWord is true. No more mappings. Delete all the characters while going up the Trie.
+     * Case 2. End of word is reached and the endOfWord is true. No more further mappings but mappings exist in nodes above.
+               Delete characters up till the node that has other mappings.
+     * Case 3. End of word is reached and the endOfWord is true. Has further mappings. Delete the last character from the map.
+     * Case 4. End of word is reached and the endOfWord is false. Which means that the word exists only as prefix to some other word.
+               Do nothing and return as word not found.
+     * Case 5. Word is not present. Do nothing and return as word not found.
+     * */
     private boolean delete(TrieNode current, String word, int index) {
         if (index == word.length()) {
             //when end of word is reached only delete if currrent.endOfWord is true.
@@ -126,6 +140,7 @@ public class Trie {
                 return false;
             }
             current.endOfWord = false;
+            wordDeleted = true;
             //if current has no other mapping then return true
             return current.children.size() == 0;
         }
@@ -140,7 +155,7 @@ public class Trie {
         if (shouldDeleteCurrentNode) {
             current.children.remove(ch);
             //return true if no mappings are left in the map.
-            return current.children.size() == 0;
+            return current.children.size() == 0 && !current.endOfWord;
         }
         return false;
     }
